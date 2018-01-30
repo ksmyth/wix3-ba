@@ -220,7 +220,7 @@ DAPI_(HRESULT) ThemeInitialize(
     hr = XmlInitialize();
     ExitOnFailure(hr, "Failed to initialize XML.");
 
-    vhCursorHand = ::LoadCursorA(NULL, IDC_HAND);
+    vhCursorHand = ::LoadCursor(NULL, IDC_HAND);
 
     // Base the theme hyperlink class on a button but give it the "hand" icon.
     if (!::GetClassInfoW(NULL, WC_BUTTONW, &wcHyperlink))
@@ -1734,7 +1734,7 @@ static HRESULT ParseImage(
     {
         iResourceId = wcstol(bstr, NULL, 10);
 
-        hr = GdipBitmapFromResource(hModule, MAKEINTRESOURCE(iResourceId), &pBitmap);
+        hr = GdipBitmapFromResource(hModule, (LPCSTR)MAKEINTRESOURCE(iResourceId), &pBitmap);
         // Don't fail.
     }
 

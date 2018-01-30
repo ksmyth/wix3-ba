@@ -285,7 +285,7 @@ HRESULT DAPI StrAnsiTrimWhitespace(
         szSource++;
     }
 
-    i = lstrlen(szSource);
+    i = strlen(szSource);
     // Overwrite ending whitespace with null characters
     if (0 < i)
     {

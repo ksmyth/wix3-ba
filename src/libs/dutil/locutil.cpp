@@ -68,7 +68,7 @@ extern "C" HRESULT DAPI LocProbeForFileEx(
     LPWSTR sczLangsBuff = NULL;
     PFN_GET_THREAD_PREFERRED_UI_LANGUAGES pfnGetThreadPreferredUILanguages =
         reinterpret_cast<PFN_GET_THREAD_PREFERRED_UI_LANGUAGES>(
-            ::GetProcAddress(::GetModuleHandle("Kernel32.dll"), "GetThreadPreferredUILanguages"));
+            ::GetProcAddress(::GetModuleHandleA("Kernel32.dll"), "GetThreadPreferredUILanguages"));
 
     // If a language was specified, look for a loc file in that as a directory.
     if (wzLanguage && *wzLanguage)

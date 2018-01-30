@@ -7,8 +7,8 @@
 
 BOOL CALLBACK EnumLangIdProc(
     __in_opt HMODULE hModule,
-    __in_z LPCSTR lpType,
-    __in_z LPCSTR lpName,
+    __in_z LPCWSTR lpType,
+    __in_z LPCWSTR lpName,
     __in WORD wLanguage,
     __in LONG_PTR lParam
     );
@@ -38,7 +38,7 @@ extern "C" HRESULT DAPI ResGetStringLangId(
 
 #pragma prefast(push)
 #pragma prefast(disable:25068)
-    if (!::EnumResourceLanguagesA(hModule, RT_STRING, MAKEINTRESOURCE(dwBlockId), static_cast<ENUMRESLANGPROC>(EnumLangIdProc), reinterpret_cast<LONG_PTR>(&wFoundLangId)))
+    if (!::EnumResourceLanguagesW(hModule, RT_STRING, MAKEINTRESOURCE(dwBlockId), static_cast<ENUMRESLANGPROC>(EnumLangIdProc), reinterpret_cast<LONG_PTR>(&wFoundLangId)))
 #pragma prefast(pop)
     {
         ExitWithLastError(hr, "Failed to find string language identifier.");
@@ -167,7 +167,7 @@ extern "C" HRESULT DAPI ResReadData(
 
 #pragma prefast(push)
 #pragma prefast(disable:25068)
-    hRsrc = ::FindResourceExA(hinst, RT_RCDATA, szDataName, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
+    hRsrc = ::FindResourceExA(hinst, (LPCSTR)RT_RCDATA, szDataName, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
 #pragma prefast(pop)
     ExitOnNullWithLastError(hRsrc, hr, "Failed to find resource.");
 
@@ -238,8 +238,8 @@ LExit:
 
 BOOL CALLBACK EnumLangIdProc(
     __in_opt HMODULE /* hModule */,
-    __in_z LPCSTR /* lpType */,
-    __in_z LPCSTR /* lpName */,
+    __in_z LPCWSTR /* lpType */,
+    __in_z LPCWSTR /* lpName */,
     __in WORD wLanguage,
     __in LONG_PTR lParam
     )
