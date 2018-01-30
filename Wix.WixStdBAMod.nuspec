@@ -6,8 +6,10 @@
     <title>Wix.WixStdBAMod</title>
     <authors>ksmyth</authors>
     <owners>ksmyth</owners>
-    <description>Wix.WixStdBAMod</description>
+    <description>Wix.WixStdBAMod: uninstalls RelatedBundle that are Detected</description>
     <licenseUrl>https://opensource.org/licenses/MS-RL</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/metamorph-inc/wix3-ba</projectUrl>
   </metadata>
   <files>
         <file src="src/ext/BalExtension/wixstdba/Release/WixStdBA.dll" target="lib" />
