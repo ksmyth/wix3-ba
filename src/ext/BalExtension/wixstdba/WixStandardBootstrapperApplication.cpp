@@ -302,15 +302,35 @@ public: // IBootstrapperApplication
         __in BOOTSTRAPPER_RELATED_OPERATION operation
         )
     {
+		HRESULT hr = S_OK;
         BalInfoAddRelatedBundleAsPackage(&m_Bundle.packages, wzBundleId, relationType, fPerMachine);
 
-        // If we're not doing a prerequisite install, remember when our bundle would cause a downgrade.
+		// If we're not doing a prerequisite install, remember when our bundle would cause a downgrade.
         if (!m_fPrereq && BOOTSTRAPPER_RELATED_OPERATION_DOWNGRADE == operation)
         {
             m_fDowngrading = TRUE;
         }
 
-        return CheckCanceled() ? IDCANCEL : IDOK;
+		// for installing a new bundle: burn detects old bundles by UpgradeCode and sets:
+		// relationType == BOOTSTRAPPER_RELATION_UPGRADE(0n2)
+		// operation == BOOTSTRAPPER_RELATED_OPERATION_MAJOR_UPGRADE
+
+		// we want to uninstall old bundles with older UpgradeCodes
+		// e.g. <RelatedBundle Id="{C86B99E4-7F62-4037-9313-32562A0C839E}" Action="Detect" />
+		// unfortunately, I don't see an easy way to get the UpgradeCode here. so we uninstall all DETECT and OPERATION_NONE
+		else if (relationType == BOOTSTRAPPER_RELATION_DETECT && operation == BOOTSTRAPPER_RELATED_OPERATION_NONE)
+		{
+			if (m_bundlesToUninstall == NULL)
+			{
+				hr = DictCreateStringList(&m_bundlesToUninstall, 32, DICT_FLAG_NONE);
+				ExitOnFailure(hr, "Failed to create the uninstall string dictionary.");
+			}
+			hr = DictAddKey(m_sdOverridableVariables, wzBundleId);
+			ExitOnFailure1(hr, "Failed to add \"%ls\" to the string dictionary.", wzBundleId);
+		}
+
+		LExit:
+        return hr == S_OK ? (CheckCanceled() ? IDCANCEL : IDOK) : hr;
     }
 
 
@@ -394,7 +414,7 @@ public: // IBootstrapperApplication
 
 
     virtual STDMETHODIMP_(int) OnPlanRelatedBundle(
-        __in_z LPCWSTR /*wzBundleId*/,
+        __in_z LPCWSTR wzBundleId,
         __inout_z BOOTSTRAPPER_REQUEST_STATE* pRequestedState
         )
     {
@@ -403,6 +423,18 @@ public: // IBootstrapperApplication
         {
             *pRequestedState = BOOTSTRAPPER_REQUEST_STATE_NONE;
         }
+		else
+		{
+			if (m_bundlesToUninstall != NULL && DictKeyExists(this->m_bundlesToUninstall, wzBundleId))
+			{
+				BalLog(BOOTSTRAPPER_LOG_LEVEL_STANDARD, "WIXSTDBAMod: uninstalling related bundle %ls", wzBundleId);
+				*pRequestedState = BOOTSTRAPPER_REQUEST_STATE_FORCE_ABSENT;
+			}
+			else
+			{
+				BalLog(BOOTSTRAPPER_LOG_LEVEL_STANDARD, "WIXSTDBAMod: not planning related bundle %ls", wzBundleId);
+			}
+		}
 
         return CheckCanceled() ? IDCANCEL : IDOK;
     }
@@ -3536,6 +3568,8 @@ public:
         m_fSupportCacheOnly = FALSE;
         m_fShowFilesInUse = FALSE;
 
+		m_bundlesToUninstall = NULL;
+
         m_sdOverridableVariables = NULL;
         m_shPrereqSupportPackages = NULL;
         m_rgPrereqPackages = NULL;
@@ -3639,7 +3673,9 @@ private:
     BOOL m_fSupportCacheOnly;
     BOOL m_fShowFilesInUse;
 
-    STRINGDICT_HANDLE m_sdOverridableVariables;
+	STRINGDICT_HANDLE m_sdOverridableVariables;
+
+	STRINGDICT_HANDLE m_bundlesToUninstall;
 
     WIXSTDBA_PREREQ_PACKAGE* m_rgPrereqPackages;
     DWORD m_cPrereqPackages;

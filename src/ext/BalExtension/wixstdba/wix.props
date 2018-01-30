@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <WixRoot>$(MSBuildThisFileDirectory)\..\..\..\..</WixRoot>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(WixRoot)\src\libs\dutil\inc;$(WixRoot)\src\libs\balutil\inc;$(WixRoot)\src\burn\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Comctl32.lib;Shlwapi.lib;Msimg32.lib;version.lib;gdiplus.lib;wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="WixRoot">
+      <Value>$(WixRoot)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

@@ -73,3 +73,26 @@ extern "C" void WINAPI MbaPrereqBootstrapperApplicationDestroy()
 {
     BalUninitialize();
 }
+
+
+#include "../balcondition.cpp"
+#include "../balinfo.cpp"
+#include "../balretry.cpp"
+#include "../balutil.cpp"
+
+#include "../strutil.cpp"
+#include "../locutil.cpp"
+#include "../apputil.cpp"
+#include "../dictutil.cpp"
+#include "../thmutil.cpp"
+#include "../xmlutil.cpp"
+#include "../memutil.cpp"
+#include "../fileutil.cpp"
+#include "../dirutil.cpp"
+#include "../pathutil.cpp"
+#include "../uriutil.cpp"
+#include "../regutil.cpp"
+#include "../shelutil.cpp"
+#include "../resrutil.cpp"
+#include "../dutil.cpp"
+#include "../gdiputil.cpp"

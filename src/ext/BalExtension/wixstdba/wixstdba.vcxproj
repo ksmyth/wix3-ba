@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the Microsoft Reciprocal License. See LICENSE.TXT file in the project root for full license information. -->
-
-
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -23,7 +22,6 @@
       <Platform>ARM</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-
   <PropertyGroup Label="Globals">
     <ProjectGuid>{41085A22-E6AA-4E8B-AB1B-DDEE0DC89DFA}</ProjectGuid>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -31,14 +29,34 @@
     <TargetName>WixStdBA</TargetName>
     <ProjectModuleDefinitionFile>wixstdba.def</ProjectModuleDefinitionFile>
   </PropertyGroup>
-
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), wix.proj))\tools\WixBuild.props" />
-
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="wix.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="wix.props" />
+  </ImportGroup>
   <PropertyGroup>
     <ProjectAdditionalIncludeDirectories>$(WixRoot)src\libs\dutil\inc;$(WixRoot)src\burn\inc;$(WixRoot)src\libs\balutil\inc</ProjectAdditionalIncludeDirectories>
     <ProjectAdditionalLinkLibraries>comctl32.lib;gdiplus.lib;msimg32.lib;shlwapi.lib;wininet.lib;dutil.lib;balutil.lib</ProjectAdditionalLinkLibraries>
   </PropertyGroup>
-
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <Optimization>MinSpace</Optimization>
+      <AdditionalIncludeDirectories>$(WixVersionPath);$(ProjectDir)inc;$(MSBuildProjectDirectory);$(IntDir);$(SqlCESdkIncludePath);$(ProjectAdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>wixstdba.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(WixVersionPath);$(ProjectDir)inc;$(MSBuildProjectDirectory);$(IntDir);$(SqlCESdkIncludePath);$(ProjectAdditionalIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="WixStandardBootstrapperApplication.cpp" />
     <ClCompile Include="wixstdba.cpp" />
@@ -92,9 +110,7 @@
     </None>
     <None Include="wixstdba.def" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="wixstdba.rc" />
-  </ItemGroup>
-
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), wix.proj))\tools\WixBuild.targets" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
 </Project>
