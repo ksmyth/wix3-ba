@@ -296,14 +296,15 @@ public: // IBootstrapperApplication
     virtual STDMETHODIMP_(int) OnDetectRelatedBundle(
         __in LPCWSTR wzBundleId,
         __in BOOTSTRAPPER_RELATION_TYPE relationType,
-        __in LPCWSTR /*wzBundleTag*/,
+        __in LPCWSTR wzBundleTag,
         __in BOOL fPerMachine,
-        __in DWORD64 /*dw64Version*/,
+        __in DWORD64 dw64Version,
         __in BOOTSTRAPPER_RELATED_OPERATION operation
         )
     {
 		HRESULT hr = S_OK;
         BalInfoAddRelatedBundleAsPackage(&m_Bundle.packages, wzBundleId, relationType, fPerMachine);
+		// TODO pPackage->sczDisplayName = "OpenMETA old version"
 
 		// If we're not doing a prerequisite install, remember when our bundle would cause a downgrade.
         if (!m_fPrereq && BOOTSTRAPPER_RELATED_OPERATION_DOWNGRADE == operation)
@@ -325,7 +326,7 @@ public: // IBootstrapperApplication
 				hr = DictCreateStringList(&m_bundlesToUninstall, 32, DICT_FLAG_NONE);
 				ExitOnFailure(hr, "Failed to create the uninstall string dictionary.");
 			}
-			hr = DictAddKey(m_sdOverridableVariables, wzBundleId);
+			hr = DictAddKey(m_bundlesToUninstall, wzBundleId);
 			ExitOnFailure1(hr, "Failed to add \"%ls\" to the string dictionary.", wzBundleId);
 		}
 
@@ -425,7 +426,7 @@ public: // IBootstrapperApplication
         }
 		else
 		{
-			if (m_bundlesToUninstall != NULL && DictKeyExists(this->m_bundlesToUninstall, wzBundleId))
+			if (m_bundlesToUninstall != NULL && DictKeyExists(this->m_bundlesToUninstall, wzBundleId) == S_OK)
 			{
 				BalLog(BOOTSTRAPPER_LOG_LEVEL_STANDARD, "WIXSTDBAMod: uninstalling related bundle %ls", wzBundleId);
 				*pRequestedState = BOOTSTRAPPER_REQUEST_STATE_FORCE_ABSENT;
@@ -508,6 +509,25 @@ public: // IBootstrapperApplication
 
                 *pRequestState = BOOTSTRAPPER_REQUEST_STATE_NONE;
             }
+        }
+
+        pPackage = NULL;
+        BalInfoFindPackageById(&m_Bundle.packages, wzPackageId, &pPackage);
+
+        LPCWSTR wz = wzPackageId;
+		if (this->m_command.action == BOOTSTRAPPER_ACTION_INSTALL)
+		{
+			if (pPackage && pPackage->sczUpgradeCode)
+			{
+				if (wcsicmp(pPackage->sczUpgradeCode, L"{23137f50-9a2e-415a-9586-4da5622203ee}") == 0) {
+					BalLog(BOOTSTRAPPER_LOG_LEVEL_STANDARD, "WIXSTDBAMod: installing package %ls", wzPackageId);
+					*pRequestState = BOOTSTRAPPER_REQUEST_STATE_PRESENT;
+				}
+			}
+			else
+			{
+				BalLog(BOOTSTRAPPER_LOG_LEVEL_STANDARD, "WIXSTDBAMod: could not find package %ls", wzPackageId);
+			}
         }
 
         return CheckCanceled() ? IDCANCEL : IDOK;
